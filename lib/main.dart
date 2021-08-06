@@ -27,10 +27,10 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
+          Planet(),
           Center(
             child: BlackHole(),
           ),
-          Planet(),
         ],
       ),
     );

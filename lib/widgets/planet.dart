@@ -3,22 +3,12 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Planet extends StatelessWidget {
+class Planet extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    final double radius =
-        MediaQuery.of(context).size.height * 0.02 * Random().nextInt(10);
-    return CustomPaint(
-      size: Size(
-        radius * 2,
-        radius * 2,
-      ),
-      painter: PlanetPainter(radius: radius),
-    );
-  }
+  _PlanetState createState() => _PlanetState();
 }
 
-class PlanetPainter extends CustomPainter {
+class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
   static const List<Color> colors = [
     Colors.green,
     Colors.yellow,
@@ -29,15 +19,94 @@ class PlanetPainter extends CustomPainter {
     Colors.deepPurple
   ];
 
-  final double radius;
+  late final AnimationController _controller = AnimationController(
+    duration: Duration(seconds: 2),
+    vsync: this,
+  )..forward();
 
-  PlanetPainter({required this.radius});
+  late final _Form form;
+  late final int sizeFactor;
+  late final Color color;
+
+  @override
+  void initState() {
+    form = getRandomForm();
+    sizeFactor = Random().nextInt(10);
+    color = colors[Random().nextInt(colors.length)];
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height;
+    final double radius = height * 0.02 * sizeFactor;
+    return PositionedTransition(
+      rect: RelativeRectTween(
+        begin: RelativeRect.fromLTRB(0, 0, radius * 2, radius * 2),
+        end: RelativeRect.fromLTRB(
+          width / 2 - radius,
+          height / 2 - radius,
+          width / 2,
+          height / 2,
+        ),
+      ).animate(
+        CurvedAnimation(
+          parent: _controller,
+          curve: Curves.linear,
+        ),
+      ),
+      child: CustomPaint(
+        size: Size(
+          radius * 2,
+          radius * 2,
+        ),
+        painter: PlanetPainter(
+          radius: radius,
+          color: color,
+          form: form,
+        ),
+      ),
+    );
+  }
+
+  _Form getRandomForm() {
+    switch (Random().nextInt(3)) {
+      case 0:
+        return _Form.TRIANGLE;
+      case 1:
+        return _Form.CIRCLE;
+      case 2:
+        return _Form.RECTANGLE;
+      default:
+        return _Form.CIRCLE;
+    }
+  }
+}
+
+class PlanetPainter extends CustomPainter {
+  final double radius;
+  final Color color;
+  final _Form form;
+
+  PlanetPainter(
+      {required this.radius, required this.color, required this.form});
 
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint();
-    paint.color = colors[Random().nextInt(colors.length - 1)];
-    drawTriangle(canvas, paint);
+    paint.color = color;
+    switch (form) {
+      case _Form.TRIANGLE:
+        drawTriangle(canvas, paint);
+        break;
+      case _Form.RECTANGLE:
+        drawRectangle(canvas, paint);
+        break;
+      case _Form.CIRCLE:
+        drawCircle(canvas, paint);
+        break;
+    }
   }
 
   @override
@@ -50,7 +119,9 @@ class PlanetPainter extends CustomPainter {
   void drawRectangle(Canvas canvas, Paint paint) {
     canvas.drawRect(
         Rect.fromCenter(
-            center: Offset.zero, width: radius * 2, height: radius * 2),
+            center: Offset(radius, radius),
+            width: radius * 2,
+            height: radius * 2),
         paint);
   }
 
@@ -63,3 +134,5 @@ class PlanetPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 }
+
+enum _Form { TRIANGLE, RECTANGLE, CIRCLE }

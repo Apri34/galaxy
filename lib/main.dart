@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:galaxy/widgets/black_hole.dart';
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+      .then((_) {
+    runApp(new MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -17,6 +23,10 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: Center(
+        child: BlackHole(),
+      ),
+    );
   }
 }

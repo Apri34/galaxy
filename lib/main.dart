@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:galaxy/widgets/black_hole.dart';
+import 'package:galaxy/widgets/planet.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,8 +25,13 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: BlackHole(),
+      body: Stack(
+        children: [
+          Center(
+            child: BlackHole(),
+          ),
+          Planet(),
+        ],
       ),
     );
   }

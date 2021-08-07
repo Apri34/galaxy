@@ -25,14 +25,22 @@ class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
   )..forward();
 
   late final _Form form;
+  late final _Position position;
   late final int sizeFactor;
   late final Color color;
+  double radius = 0.0;
+  late Animation<double> animation;
+  late final double xPosition;
+  late final double yPosition;
 
   @override
   void initState() {
     form = getRandomForm();
+    position = getRandomPosition();
     sizeFactor = Random().nextInt(10);
     color = colors[Random().nextInt(colors.length)];
+    xPosition = Random().nextDouble();
+    yPosition = Random().nextDouble();
     super.initState();
   }
 
@@ -40,13 +48,38 @@ class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
-    final double radius = height * 0.02 * sizeFactor;
+    final initialRadius = height * 0.02 * sizeFactor;
+
+    final double xStartPoint = position == _Position.LEFT
+        ? -initialRadius * 2
+        : position == _Position.RIGHT
+            ? width
+            : xPosition * width;
+    final double yStartPoint = position == _Position.TOP
+        ? -initialRadius * 2
+        : position == _Position.BOTTOM
+            ? height
+            : yPosition * height;
+
+    animation = Tween<double>(begin: initialRadius, end: 0)
+        .animate(_controller)
+          ..addListener(() {
+            setState(() {
+              radius = animation.value;
+            });
+          });
+
     return PositionedTransition(
       rect: RelativeRectTween(
-        begin: RelativeRect.fromLTRB(0, 0, radius * 2, radius * 2),
+        begin: RelativeRect.fromLTRB(
+          xStartPoint,
+          yStartPoint,
+          xStartPoint + initialRadius * 2,
+          yStartPoint + initialRadius * 2,
+        ),
         end: RelativeRect.fromLTRB(
-          width / 2 - radius,
-          height / 2 - radius,
+          width / 2,
+          height / 2,
           width / 2,
           height / 2,
         ),
@@ -71,16 +104,11 @@ class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
   }
 
   _Form getRandomForm() {
-    switch (Random().nextInt(3)) {
-      case 0:
-        return _Form.TRIANGLE;
-      case 1:
-        return _Form.CIRCLE;
-      case 2:
-        return _Form.RECTANGLE;
-      default:
-        return _Form.CIRCLE;
-    }
+    return _Form.values[Random().nextInt(_Form.values.length)];
+  }
+
+  _Position getRandomPosition() {
+    return _Position.values[Random().nextInt(_Position.values.length)];
   }
 }
 
@@ -136,3 +164,5 @@ class PlanetPainter extends CustomPainter {
 }
 
 enum _Form { TRIANGLE, RECTANGLE, CIRCLE }
+
+enum _Position { TOP, BOTTOM, RIGHT, LEFT }

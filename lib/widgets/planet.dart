@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Planet extends StatefulWidget {
+
   @override
   _PlanetState createState() => _PlanetState();
 }
@@ -22,7 +23,9 @@ class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: Duration(seconds: 2),
     vsync: this,
-  )..forward();
+  )..forward()..addStatusListener((status) {
+    //TODO remove widget
+  });
 
   late final _Form form;
   late final _Position position;

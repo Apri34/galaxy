@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:galaxy/widgets/black_hole.dart';
@@ -21,13 +23,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final List<Planet> planets = [];
+  late final Timer timer;
+
+  @override
+  void initState() {
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        planets.add(Planet());
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          Planet(),
+          ...planets,
           Center(
             child: BlackHole(),
           ),

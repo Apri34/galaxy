@@ -36,7 +36,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
-        planets.add(Planet());
+        planets.add(Planet(key: UniqueKey(),
+          onAnimationCompleted: (key) {
+            setState(() {
+              planets.removeWhere((element) => element.key == key);
+            });
+          },
+        ));
       });
     });
     super.initState();

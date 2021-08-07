@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 
 class Planet extends StatefulWidget {
 
+  final Function(Key? key) onAnimationCompleted;
+
+  const Planet({Key? key, required this.onAnimationCompleted}) : super(key: key);
+
   @override
   _PlanetState createState() => _PlanetState();
 }
@@ -24,7 +28,9 @@ class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
     duration: Duration(seconds: 2),
     vsync: this,
   )..forward()..addStatusListener((status) {
-    //TODO remove widget
+    if(status == AnimationStatus.completed) {
+      widget.onAnimationCompleted(widget.key);
+    }
   });
 
   late final _Form form;
@@ -49,28 +55,34 @@ class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
-    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final double height = MediaQuery
+        .of(context)
+        .size
+        .height;
     final initialRadius = height * 0.02 * sizeFactor;
 
     final double xStartPoint = position == _Position.LEFT
         ? -initialRadius * 2
         : position == _Position.RIGHT
-            ? width
-            : xPosition * width;
+        ? width
+        : xPosition * width;
     final double yStartPoint = position == _Position.TOP
         ? -initialRadius * 2
         : position == _Position.BOTTOM
-            ? height
-            : yPosition * height;
+        ? height
+        : yPosition * height;
 
     animation = Tween<double>(begin: initialRadius, end: 0)
         .animate(_controller)
-          ..addListener(() {
-            setState(() {
-              radius = animation.value;
-            });
-          });
+      ..addListener(() {
+        setState(() {
+          radius = animation.value;
+        });
+      });
 
     return PositionedTransition(
       rect: RelativeRectTween(
@@ -104,6 +116,11 @@ class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
         ),
       ),
     );
+  }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   _Form getRandomForm() {

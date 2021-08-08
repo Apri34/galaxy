@@ -34,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(Duration(milliseconds: 1500), (timer) {
       setState(() {
         planets.add(Planet(key: UniqueKey(),
           onAnimationCompleted: (key) {

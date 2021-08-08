@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class BlackHole extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final double radius = MediaQuery.of(context).size.height * 0.2;
+    final double radius = MediaQuery.of(context).size.height * 0.1;
     return CustomPaint(
       size: Size(
         radius * 2,

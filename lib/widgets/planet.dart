@@ -4,10 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Planet extends StatefulWidget {
-
   final Function(Key? key) onAnimationCompleted;
 
-  const Planet({Key? key, required this.onAnimationCompleted}) : super(key: key);
+  const Planet({Key? key, required this.onAnimationCompleted})
+      : super(key: key);
 
   @override
   _PlanetState createState() => _PlanetState();
@@ -25,98 +25,79 @@ class _PlanetState extends State<Planet> with SingleTickerProviderStateMixin {
   ];
 
   late final AnimationController _controller = AnimationController(
-    duration: Duration(seconds: 2),
+    duration: Duration(seconds: 20 + Random().nextInt(10)),
     vsync: this,
-  )..forward()..addStatusListener((status) {
-    if(status == AnimationStatus.completed) {
-      widget.onAnimationCompleted(widget.key);
-    }
-  });
+  )
+    ..forward()
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onAnimationCompleted(widget.key);
+      }
+    });
 
   late final _Form form;
-  late final _Position position;
   late final int sizeFactor;
   late final Color color;
-  double radius = 0.0;
-  late Animation<double> animation;
-  late final double xPosition;
-  late final double yPosition;
+  late final double initialAngle;
+  double planetRadius = .0;
+  double orbitRadius = 0.0;
+  double angle = 0.0;
+  late Animation<double> radiusAnimation;
+  late Animation<double> angleAnimation;
 
   @override
   void initState() {
     form = getRandomForm();
-    position = getRandomPosition();
     sizeFactor = Random().nextInt(10);
+    initialAngle = Random().nextDouble() * pi * 2;
     color = colors[Random().nextInt(colors.length)];
-    xPosition = Random().nextDouble();
-    yPosition = Random().nextDouble();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final double height = MediaQuery
-        .of(context)
-        .size
-        .height;
-    final initialRadius = height * 0.02 * sizeFactor;
+    final double width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height;
+    final initialPlanetRadius = height * 0.015 * sizeFactor;
+    final initialOrbitRadius = height / 2 + initialPlanetRadius;
 
-    final double xStartPoint = position == _Position.LEFT
-        ? -initialRadius * 2
-        : position == _Position.RIGHT
-        ? width
-        : xPosition * width;
-    final double yStartPoint = position == _Position.TOP
-        ? -initialRadius * 2
-        : position == _Position.BOTTOM
-        ? height
-        : yPosition * height;
-
-    animation = Tween<double>(begin: initialRadius, end: 0)
-        .animate(_controller)
+    radiusAnimation = Tween<double>(begin: 1, end: 0).animate(_controller)
       ..addListener(() {
         setState(() {
-          radius = animation.value;
+          planetRadius = initialPlanetRadius * radiusAnimation.value;
+          orbitRadius = initialOrbitRadius * radiusAnimation.value;
         });
       });
 
-    return PositionedTransition(
-      rect: RelativeRectTween(
-        begin: RelativeRect.fromLTRB(
-          xStartPoint,
-          yStartPoint,
-          xStartPoint + initialRadius * 2,
-          yStartPoint + initialRadius * 2,
-        ),
-        end: RelativeRect.fromLTRB(
-          width / 2,
-          height / 2,
-          width / 2,
-          height / 2,
-        ),
-      ).animate(
-        CurvedAnimation(
-          parent: _controller,
-          curve: Curves.linear,
-        ),
-      ),
+    angleAnimation = Tween<double>(
+      begin: 0,
+      end: pi * 16,
+    ).animate(_controller)
+      ..addListener(() {
+        setState(() {
+          angle = initialAngle + angleAnimation.value;
+        });
+      });
+
+    return Positioned(
+      left: width / 2 + sin(pi/2 - angle) * orbitRadius - planetRadius,
+      top: height / 2 + sin(angle) * orbitRadius - planetRadius,
+      width: planetRadius * 2,
+      height: planetRadius * 2,
       child: CustomPaint(
         size: Size(
-          radius * 2,
-          radius * 2,
+          planetRadius * 2,
+          planetRadius * 2,
         ),
         painter: PlanetPainter(
-          radius: radius,
+          radius: planetRadius,
           color: color,
           form: form,
         ),
       ),
     );
   }
+
   @override
   void dispose() {
     _controller.dispose();

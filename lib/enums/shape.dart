@@ -1,0 +1,3 @@
+
+
+enum Shape { TRIANGLE, RECTANGLE, CIRCLE }
